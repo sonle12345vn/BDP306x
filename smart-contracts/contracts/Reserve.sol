@@ -24,7 +24,8 @@ contract Reserve is Ownable {
     }
 
     function withdrawBaseToken(address destAddress, uint256 amount) public payable onlyOwner {
-        payable(address(this)).transfer(amount);
+        (bool sent, ) = this.owner().call{value: amount}("");
+        require(sent, "Failed to send ETH");
         emit WithdrawFund(address(0xeeeeeeeeeeeeeeeeeeeeeeee), this.owner(), destAddress, amount);
     }
 
@@ -41,6 +42,10 @@ contract Reserve is Ownable {
         exchangeRate = exchangeRateWScale;
         reverseExchangeRate = reverseExchangeRateWScale;
         emit SetChangeRate(exchangeRateWScale, reverseExchangeRateWScale);
+    }
+
+    function depositReserves(uint256 baseAmount, uint256 quoteAmount) public onlyOwner {
+
     }
 
     function getExchangeRate(bool isFromBaseToQuote, uint256 amount) public view returns (uint256) {
