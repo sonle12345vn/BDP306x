@@ -14,6 +14,8 @@ contract Reserve is Ownable {
 
     uint256 public exchangeScale = 10000;
 
+    address public Eth = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+
     event WithdrawFund(address indexed token, address indexed admin, address indexed fundTo, uint256 amount);
     event SetChangeRate(uint256 exchangeRate, uint256 reverseExchangeRate);
     event ExchangeToQuote(address indexed user, uint256 fromAmt, uint256 toAmount);
@@ -26,7 +28,7 @@ contract Reserve is Ownable {
     function withdrawBaseToken(address destAddress, uint256 amount) public payable onlyOwner {
         (bool sent, ) = this.owner().call{value: amount}("");
         require(sent, "Failed to send ETH");
-        emit WithdrawFund(address(0xeeeeeeeeeeeeeeeeeeeeeeee), this.owner(), destAddress, amount);
+        emit WithdrawFund(Eth, this.owner(), destAddress, amount);
     }
 
     function withdrawQuoteToken(address destAddress, uint256 amount) public onlyOwner {
