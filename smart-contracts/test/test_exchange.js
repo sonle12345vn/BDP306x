@@ -47,14 +47,21 @@ describe("Exchange", function () {
         }
     }
 
-    async function deployExchange(deployer, reserves) {
+    async function deployExchange(
+        deployer,
+        reserves
+    ) {
         const Factory = await ethers.getContractFactory("Exchange");
         const exchange = await Factory.connect(deployer).deploy();
         await exchange.deployed();
 
         for (let i = 0; i < reserves.length; i++) {
-            await exchange.connect(deployer).addReserve(reserves[i].token, reserves[i].reserve,);
+            await exchange.connect(deployer).addReserve(reserves[i].token, reserves[i].reserve);
+            console.log(`token: ${reserves[i].token}, reserve: ${reserves[i].reserve}`);
+            await exchange.connect(deployer).setApproveForReserve(reserves[i].token, reserves[i].reserve);
         }
+
+        return exchange
     }
 
     async function setExchangeRate(deployer, reserve, rate, reverseRate,) {
@@ -67,20 +74,45 @@ describe("Exchange", function () {
         const lion = await deployTokenAndMintReserve(admin, "Lion", mintFor)
         console.log(`Token Lion is deployed at ${lion.token.address}, reserve at ${lion.reserve.address}`);
 
-        await deployExchange(admin, [{
-            token: tiger.token.address,
-            reserve: tiger.reserve.address
+        const exchange = await deployExchange(admin, [{
+            token: tiger.token.address, reserve: tiger.reserve.address
         }, {token: lion.token.address, reserve: lion.reserve.address}])
 
         // set 1 ETH = 2 Tiger and 1 Tiger = 0.5 ETH
         await setExchangeRate(admin, tiger.reserve, 2 * EXCHANGE_SCALE, EXCHANGE_SCALE / 2);
 
         // set 1 ETH = 5 Lion and 1 Lion = 0.1 ETH
-        await setExchangeRate(admin, tiger.reserve, 5 * EXCHANGE_SCALE, EXCHANGE_SCALE / 10);
+        await setExchangeRate(admin, lion.reserve, 5 * EXCHANGE_SCALE, EXCHANGE_SCALE / 10);
+
+        return {
+            tiger: tiger, lion: lion, exchange: exchange
+        }
     }
 
     it("Exchange between two ERC20 tokens", async function () {
         const [admin, alice, bob] = await ethers.getSigners();
-        await setupAll(admin, [alice, bob]);
+        const {tiger, lion, exchange} = await setupAll(admin, [alice, bob]);
+
+        // set approve
+        for (const addr of [admin, alice, bob]) {
+            const MAX = new ethers.utils.parseEther("1000000000");
+            await tiger.token.connect(addr).approve(exchange.address, MAX);
+            await lion.token.connect(addr).approve(exchange.address, MAX);
+        }
+
+        // Alice Swap 1 Tiger to 2.5 Lion
+        const tigerBalanceBefore = await tiger.token.balanceOf(alice.address);
+        const lionBalanceBefore = await lion.token.balanceOf(alice.address);
+
+        const exchangeAmount = new ethers.utils.parseEther("1")
+        await exchange.connect(alice).exchange(tiger.token.address, lion.token.address, exchangeAmount);
+
+        const tigerBalanceAfter = await tiger.token.balanceOf(alice.address);
+        const lionBalanceAfter = await lion.token.balanceOf(alice.address);
+
+        // Alice lost 1 Tiger
+        expect(tigerBalanceAfter).to.equal(tigerBalanceBefore - exchangeAmount);
+        // Alice gain 2.5 Lion
+        expect(lionBalanceAfter).to.equal(lionBalanceBefore + 2.5 * exchangeAmount);
     })
 })

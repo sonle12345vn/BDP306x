@@ -4,6 +4,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Reserve.sol";
 
+import "hardhat/console.sol";
+
+
 contract Exchange is Ownable {
     mapping(address => Reserve) public tokenMapping;
 
@@ -12,6 +15,8 @@ contract Exchange is Ownable {
     event ExchangeSuccess(address indexed srcToken, address indexed dstToken, uint256 fromAmount, uint256 toAmount);
 
     address public Eth = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+
+    uint256 MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 
     constructor() {}
 
@@ -37,6 +42,7 @@ contract Exchange is Ownable {
 
                 uint256 srcToETH = src.getExchangeRate(false, srcAmount);
                 uint256 ethToDst = dst.getExchangeRate(true, srcToETH);
+                console.log("srcToETH %d, ethToDest %d, srcAmount %d", srcToETH, ethToDst, srcAmount);
 
                 return ethToDst;
             }
@@ -103,6 +109,10 @@ contract Exchange is Ownable {
                 emit ExchangeSuccess(srcToken, dstToken, srcAmount, amountTo);
             }
         }
+    }
+
+    function setApproveForReserve(address token, address reserve) public onlyOwner {
+        IERC20(token).approve(reserve, MAX_INT);
     }
 
     function isEth(address token) public view returns (bool) {

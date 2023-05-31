@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "hardhat/console.sol";
+
 contract Reserve is Ownable {
     // quoteToken should be Lion, Tiger
     IERC20 public quoteToken;
@@ -48,8 +50,8 @@ contract Reserve is Ownable {
 
     function depositReserves(uint256 baseAmount, uint256 quoteAmount) public payable onlyOwner {
         require(msg.value == baseAmount, "Invalid base amount");
-        (bool sent, ) = msg.sender.call{value: baseAmount}("");
-        require(sent, "Failed to deposit base reserve");
+//        (bool sent, ) = address(this).call{value: baseAmount}("");
+//        require(sent, "Failed to deposit base reserve");
 
         IERC20(quoteToken).transferFrom(msg.sender, address(this), quoteAmount);
     }
@@ -63,7 +65,9 @@ contract Reserve is Ownable {
 
             return to;
         } else {
+            console.log("Reserve amount %d", address(this).balance);
             uint256 to = amount * reverseExchangeRate / exchangeScale;
+            console.log("to %d", to);
             if (to > address(this).balance) {
                 return 0;
             }
