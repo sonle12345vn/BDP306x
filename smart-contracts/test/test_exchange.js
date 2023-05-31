@@ -98,25 +98,25 @@ describe("Exchange", function () {
         }
     }
 
-    // it("Exchange between two ERC20 tokens", async function () {
-    //     const [admin, alice] = await ethers.getSigners();
-    //     const {tiger, lion, exchange} = await setupAll(admin, [alice]);
-    //
-    //     // Alice Swap 1 Tiger to 2.5 Lion
-    //     const tigerBalanceBefore = await tiger.token.balanceOf(alice.address);
-    //     const lionBalanceBefore = await lion.token.balanceOf(alice.address);
-    //
-    //     const oneTiger = new ethers.utils.parseEther("1")
-    //     await exchange.connect(alice).exchange(tiger.token.address, lion.token.address, oneTiger);
-    //
-    //     const tigerBalanceAfter = await tiger.token.balanceOf(alice.address);
-    //     const lionBalanceAfter = await lion.token.balanceOf(alice.address);
-    //
-    //     // Alice lost 1 Tiger
-    //     expect(tigerBalanceAfter).to.equal(tigerBalanceBefore.sub(oneTiger));
-    //     // Alice gain 2.5 Lion
-    //     expect(lionBalanceAfter).to.equal(lionBalanceBefore.add(oneTiger.mul(5).div(2)));
-    // })
+    it("Exchange between two ERC20 tokens", async function () {
+        const [admin, alice] = await ethers.getSigners();
+        const {tiger, lion, exchange} = await setupAll(admin, [alice]);
+
+        // Alice Swap 1 Tiger to 2.5 Lion
+        const tigerBalanceBefore = await tiger.token.balanceOf(alice.address);
+        const lionBalanceBefore = await lion.token.balanceOf(alice.address);
+
+        const oneTiger = new ethers.utils.parseEther("1")
+        await exchange.connect(alice).exchange(tiger.token.address, lion.token.address, oneTiger);
+
+        const tigerBalanceAfter = await tiger.token.balanceOf(alice.address);
+        const lionBalanceAfter = await lion.token.balanceOf(alice.address);
+
+        // Alice lost 1 Tiger
+        expect(tigerBalanceAfter).to.equal(tigerBalanceBefore.sub(oneTiger));
+        // Alice gain 2.5 Lion
+        expect(lionBalanceAfter).to.equal(lionBalanceBefore.add(oneTiger.mul(5).div(2)));
+    })
 
     it("Exchange from ERC20 to ETH", async function () {
         const [admin, alice] = await ethers.getSigners();
