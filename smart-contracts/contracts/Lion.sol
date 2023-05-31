@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 // SPDX-License-Identifier: UNLICENSED
 
-contract Tiger is ERC20, Ownable {
+contract Lion is ERC20, Ownable {
     address minter;
 
     event SetMinter(address _newMinter);
@@ -15,7 +15,9 @@ contract Tiger is ERC20, Ownable {
         _;
     }
 
-    constructor() ERC20("Lion ERC20 token", "Lion"){}
+    constructor() ERC20("Lion ERC20 token", "Lion"){
+        minter = msg.sender;
+    }
 
     function mint(address recipient, uint256 amount) public onlyMinter {
         _mint(recipient, amount);

@@ -15,7 +15,9 @@ contract Tiger is ERC20, Ownable {
         _;
     }
 
-    constructor() ERC20("Tiger ERC20 token", "TIGER"){}
+    constructor() ERC20("Tiger ERC20 token", "TIGER"){
+        minter = msg.sender;
+    }
 
     function mint(address recipient, uint256 amount) public onlyMinter {
         _mint(recipient, amount);
