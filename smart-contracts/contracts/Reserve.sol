@@ -76,12 +76,11 @@ contract Reserve is Ownable {
         }
     }
 
-    function exchange(bool isFromBaseToQuote, uint256 amount) payable public {
+    function exchange(bool isFromBaseToQuote, uint256 amount) external payable {
         if (isFromBaseToQuote) {
             // transfer ETH to this smart contract
             require(msg.value == amount, "Not enough ETH");
-            (bool sent,) = address(this).call{value : amount}("");
-            require(sent, "Failed to send ETH");
+            payable(address(this)).transfer(amount);
 
             // transfer quote token for Exchange
             uint256 to = getExchangeRate(true, amount);
@@ -98,14 +97,16 @@ contract Reserve is Ownable {
             // transfer quote token to this smart contract
             IERC20(quoteToken).transferFrom(msg.sender, address(this), amount);
 
-            console.log("msg.sender --------- %d", address(msg.sender));
+            console.log("balance of msg.sender --------- %s", address(msg.sender).balance);
             console.log("to --------- %d", to);
             console.log("balance --------- %d", address(this).balance);
             // transfer ETH for Exchange
-            (bool sent,) = payable(msg.sender).call{value : to}("");
-            require(sent, "Failed to send ETH");
+            payable(msg.sender).transfer(to);
+//            require(sent, "Failed to send ETH");
 
             emit ExchangeToBase(msg.sender, amount, to);
         }
     }
+
+    receive() payable external {}
 }

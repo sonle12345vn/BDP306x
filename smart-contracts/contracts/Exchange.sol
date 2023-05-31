@@ -49,7 +49,7 @@ contract Exchange is Ownable {
         }
     }
 
-    function addReserve(address token, address reserve) public onlyOwner {
+    function addReserve(address token, address payable reserve) public onlyOwner {
         tokenMapping[token] = Reserve(reserve);
 
         emit AddReserve(token, reserve);
@@ -99,7 +99,7 @@ contract Exchange is Ownable {
             } else {
                 // 1.3 Exchange from ERC20 token to ERC20 token
 
-                // exchange swap ERC20 to ETH
+                // exchange ERC20 to ETH
                 Reserve src = tokenMapping[srcToken];
                 uint256 srcToEth = src.getExchangeRate(false, srcAmount);
                 src.exchange(false, srcAmount);
@@ -108,7 +108,7 @@ contract Exchange is Ownable {
                 dst.exchange{value: srcToEth}(true, srcToEth);
 
                 // Transfer ERC20 token to user
-                IERC20(srcToken).transfer(msg.sender, ethToDst);
+                IERC20(dstToken).transfer(msg.sender, ethToDst);
 
                 emit ExchangeSuccess(srcToken, dstToken, srcAmount, amountTo);
             }
@@ -122,4 +122,6 @@ contract Exchange is Ownable {
     function isEth(address token) public view returns (bool) {
         return token == Eth;
     }
+
+    receive() payable external {}
 }
