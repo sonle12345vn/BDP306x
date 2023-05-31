@@ -4,7 +4,7 @@ const {ethers} = require("hardhat")
 describe("Exchange", function () {
     const DECIMALS = 18;
 
-    async function deployAndMintReserve(deployer, tokenContractName, mintFor) {
+    async function deployTokenAndMintReserve(deployer, tokenContractName, mintFor) {
         // get factory
         const TokenFactory = await ethers.getContractFactory(tokenContractName);
 
@@ -46,11 +46,32 @@ describe("Exchange", function () {
         }
     }
 
+    async function deployExchange(
+        deployer,
+        reserves
+    ) {
+        const Factory = await ethers.getContractFactory("Exchange");
+        const exchange = await Factory.connect(deployer).deploy();
+        await exchange.deployed();
+
+        for (let i = 0; i < reserves.length; i++) {
+            await exchange.connect(deployer).addReserve(
+                reserves[i].token,
+                reserves[i].reserve,
+            );
+        }
+    }
+
     async function setupAll(admin, mintFor) {
-        const tiger = await deployAndMintReserve(admin, "Tiger", mintFor)
+        const tiger = await deployTokenAndMintReserve(admin, "Tiger", mintFor)
         console.log(`Token Tiger is deployed at ${tiger.token.address}, reserve at ${tiger.reserve.address}`);
-        const lion = await deployAndMintReserve(admin, "Lion", mintFor)
+        const lion = await deployTokenAndMintReserve(admin, "Lion", mintFor)
         console.log(`Token Lion is deployed at ${lion.token.address}, reserve at ${lion.reserve.address}`);
+
+        await deployExchange(admin, [
+            {token: tiger.token.address, reserve: tiger.reserve.address},
+            {token: lion.token.address, reserve: lion.reserve.address}
+        ])
     }
 
     it("Exchange between two ERC20 tokens", async function () {
