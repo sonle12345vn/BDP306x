@@ -46,8 +46,12 @@ contract Reserve is Ownable {
         emit SetChangeRate(exchangeRateWScale, reverseExchangeRateWScale);
     }
 
-    function depositReserves(uint256 baseAmount, uint256 quoteAmount) public onlyOwner {
+    function depositReserves(uint256 baseAmount, uint256 quoteAmount) public payable onlyOwner {
+        require(msg.value == baseAmount, "Invalid base amount");
+        (bool sent, ) = msg.sender.call{value: baseAmount}("");
+        require(sent, "Failed to deposit base reserve");
 
+        IERC20(quoteToken).transferFrom(msg.sender, address(this), quoteAmount);
     }
 
     function getExchangeRate(bool isFromBaseToQuote, uint256 amount) public view returns (uint256) {
