@@ -98,10 +98,14 @@ contract Exchange is Ownable {
                 emit ExchangeSuccess(srcToken, dstToken, srcAmount, amountTo);
             } else {
                 // 1.3 Exchange from ERC20 token to ERC20 token
+
+                // exchange swap ERC20 to ETH
                 Reserve src = tokenMapping[srcToken];
                 uint256 srcToEth = src.getExchangeRate(false, srcAmount);
+                src.exchange(false, srcAmount);
+
                 uint256 ethToDst = dst.getExchangeRate(true, srcToEth);
-                dst.exchange(true, srcToEth);
+                dst.exchange{value: srcToEth}(true, srcToEth);
 
                 // Transfer ERC20 token to user
                 IERC20(srcToken).transfer(msg.sender, ethToDst);

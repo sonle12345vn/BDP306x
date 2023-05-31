@@ -28,7 +28,7 @@ contract Reserve is Ownable {
     }
 
     function withdrawBaseToken(address destAddress, uint256 amount) public payable onlyOwner {
-        (bool sent, ) = this.owner().call{value: amount}("");
+        (bool sent,) = this.owner().call{value : amount}("");
         require(sent, "Failed to send ETH");
         emit WithdrawFund(Eth, this.owner(), destAddress, amount);
     }
@@ -50,8 +50,8 @@ contract Reserve is Ownable {
 
     function depositReserves(uint256 baseAmount, uint256 quoteAmount) public payable onlyOwner {
         require(msg.value == baseAmount, "Invalid base amount");
-//        (bool sent, ) = address(this).call{value: baseAmount}("");
-//        require(sent, "Failed to deposit base reserve");
+        //        (bool sent, ) = address(this).call{value: baseAmount}("");
+        //        require(sent, "Failed to deposit base reserve");
 
         IERC20(quoteToken).transferFrom(msg.sender, address(this), quoteAmount);
     }
@@ -77,32 +77,35 @@ contract Reserve is Ownable {
     }
 
     function exchange(bool isFromBaseToQuote, uint256 amount) payable public {
-       if (isFromBaseToQuote) {
-           // transfer ETH to this smart contract
-           require(msg.value == amount, "Not enough ETH");
-           (bool sent, ) = address(this).call{value: amount}("");
-           require(sent, "Failed to send ETH");
+        if (isFromBaseToQuote) {
+            // transfer ETH to this smart contract
+            require(msg.value == amount, "Not enough ETH");
+            (bool sent,) = address(this).call{value : amount}("");
+            require(sent, "Failed to send ETH");
 
-           // transfer quote token for user
-           uint256 to = getExchangeRate(true, amount);
-           require(to > 0, "Not enough quote token liquidity");
+            // transfer quote token for Exchange
+            uint256 to = getExchangeRate(true, amount);
+            require(to > 0, "Not enough quote token liquidity");
 
-           IERC20(quoteToken).transfer(msg.sender, to);
+            IERC20(quoteToken).transfer(msg.sender, to);
 
-           emit ExchangeToQuote(msg.sender, amount, to);
-       } else {
-           require(amount <= IERC20(quoteToken).balanceOf(msg.sender), "Not enough quote token");
-           uint256 to = getExchangeRate(false, amount);
-           require(to > 0, "Not enough base token liquidity");
+            emit ExchangeToQuote(msg.sender, amount, to);
+        } else {
+            require(amount <= IERC20(quoteToken).balanceOf(msg.sender), "Not enough quote token");
+            uint256 to = getExchangeRate(false, amount);
+            require(to > 0, "Not enough base token liquidity");
 
-           // transfer quote token to this smart contract
-           IERC20(quoteToken).transferFrom(msg.sender, address(this), amount);
+            // transfer quote token to this smart contract
+            IERC20(quoteToken).transferFrom(msg.sender, address(this), amount);
 
-           // transfer ETH for user
-           (bool sent, ) = msg.sender.call{value: to}("");
-           require(sent, "Failed to send ETH");
+            console.log("msg.sender --------- %d", address(msg.sender));
+            console.log("to --------- %d", to);
+            console.log("balance --------- %d", address(this).balance);
+            // transfer ETH for Exchange
+            (bool sent,) = payable(msg.sender).call{value : to}("");
+            require(sent, "Failed to send ETH");
 
-           emit ExchangeToBase(msg.sender, amount, to);
-       }
+            emit ExchangeToBase(msg.sender, amount, to);
+        }
     }
 }
