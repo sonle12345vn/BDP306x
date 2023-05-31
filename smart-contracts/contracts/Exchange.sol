@@ -42,7 +42,6 @@ contract Exchange is Ownable {
 
                 uint256 srcToETH = src.getExchangeRate(false, srcAmount);
                 uint256 ethToDst = dst.getExchangeRate(true, srcToETH);
-                console.log("srcToETH %d, ethToDest %d, srcAmount %d", srcToETH, ethToDst, srcAmount);
 
                 return ethToDst;
             }

@@ -50,8 +50,6 @@ contract Reserve is Ownable {
 
     function depositReserves(uint256 baseAmount, uint256 quoteAmount) public payable onlyOwner {
         require(msg.value == baseAmount, "Invalid base amount");
-        //        (bool sent, ) = address(this).call{value: baseAmount}("");
-        //        require(sent, "Failed to deposit base reserve");
 
         IERC20(quoteToken).transferFrom(msg.sender, address(this), quoteAmount);
     }
@@ -65,9 +63,7 @@ contract Reserve is Ownable {
 
             return to;
         } else {
-            console.log("Reserve amount %d", address(this).balance);
             uint256 to = amount * reverseExchangeRate / exchangeScale;
-            console.log("to %d", to);
             if (to > address(this).balance) {
                 return 0;
             }
@@ -97,12 +93,8 @@ contract Reserve is Ownable {
             // transfer quote token to this smart contract
             IERC20(quoteToken).transferFrom(msg.sender, address(this), amount);
 
-            console.log("balance of msg.sender --------- %s", address(msg.sender).balance);
-            console.log("to --------- %d", to);
-            console.log("balance --------- %d", address(this).balance);
             // transfer ETH for Exchange
             payable(msg.sender).transfer(to);
-//            require(sent, "Failed to send ETH");
 
             emit ExchangeToBase(msg.sender, amount, to);
         }

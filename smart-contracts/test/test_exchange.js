@@ -119,4 +119,8 @@ describe("Exchange", function () {
         // Alice gain 2.5 Lion
         expect(lionBalanceAfter).to.equal(lionBalanceBefore.add(oneTiger.mul(5).div(2)));
     })
+
+    it("Exchange from ERC20 to ETH", async function () {
+
+    })
 })
