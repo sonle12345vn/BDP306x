@@ -71,9 +71,7 @@ describe("Exchange", function () {
 
     async function setupAll(admin, mintFor) {
         const tiger = await deployTokenAndMintReserve(admin, "Tiger", mintFor)
-        console.log(`Token Tiger is deployed at ${tiger.token.address}, reserve at ${tiger.reserve.address}`);
         const lion = await deployTokenAndMintReserve(admin, "Lion", mintFor)
-        console.log(`Token Lion is deployed at ${lion.token.address}, reserve at ${lion.reserve.address}`);
 
         const exchange = await deployExchange(admin, [{
             token: tiger.token.address, reserve: tiger.reserve.address
@@ -85,6 +83,16 @@ describe("Exchange", function () {
         // set 1 ETH = 5 Lion and 1 Lion = 0.1 ETH
         await setExchangeRate(admin, lion.reserve, 5 * EXCHANGE_SCALE, EXCHANGE_SCALE / 10);
 
+        const callers = [admin]
+        for (let i = 0; i < mintFor.length; i++) {
+            callers.push(mintFor[i])
+        }
+        for (const addr of callers) {
+            const MAX = new ethers.utils.parseEther("1000000000");
+            await tiger.token.connect(addr).approve(exchange.address, MAX);
+            await lion.token.connect(addr).approve(exchange.address, MAX);
+        }
+
         return {
             tiger: tiger, lion: lion, exchange: exchange
         }
@@ -92,17 +100,7 @@ describe("Exchange", function () {
 
     it("Exchange between two ERC20 tokens", async function () {
         const [admin, alice, bob] = await ethers.getSigners();
-        console.log(`ADMIN address: ${admin.address}`)
-        console.log(`ALICE address: ${alice.address}`)
-        console.log(`BOB address: ${bob.address}`)
         const {tiger, lion, exchange} = await setupAll(admin, [alice, bob]);
-
-        // set approve
-        for (const addr of [admin, alice, bob]) {
-            const MAX = new ethers.utils.parseEther("1000000000");
-            await tiger.token.connect(addr).approve(exchange.address, MAX);
-            await lion.token.connect(addr).approve(exchange.address, MAX);
-        }
 
         // Alice Swap 1 Tiger to 2.5 Lion
         const tigerBalanceBefore = await tiger.token.balanceOf(alice.address);
@@ -121,6 +119,7 @@ describe("Exchange", function () {
     })
 
     it("Exchange from ERC20 to ETH", async function () {
-
+        const [admin, alice, bob] = await ethers.getSigners();
+        const {tiger, lion, exchange} = await setupAll(admin, [alice, bob]);
     })
 })
