@@ -87,8 +87,9 @@ contract Exchange is Ownable {
 
             // 1.2 Exchange from ERC20 token to ETH
             if (isEth(dstToken)) {
+                Reserve src = tokenMapping[srcToken];
                 // Exchange from ERC20 token to ETH
-                dst.exchange(false, srcAmount);
+                src.exchange{value: 0}(false, srcAmount);
 
                 // Transfer ETH to user
                 (bool sent,) = msg.sender.call{value : amountTo}("");
