@@ -115,10 +115,8 @@ describe("Exchange", function () {
         const lionBalanceAfter = await lion.token.balanceOf(alice.address);
 
         // Alice lost 1 Tiger
-        console.log(`tiger balance after: ${tigerBalanceAfter}`)
-        // expect(tigerBalanceAfter).to.equal(tigerBalanceBefore - oneTiger);
+        expect(tigerBalanceAfter.add(oneTiger)).to.equal(tigerBalanceBefore);
         // Alice gain 2.5 Lion
-        console.log(`lion balance after: ${lionBalanceAfter}`)
-        // expect(lionBalanceAfter).to.equal(lionBalanceBefore + 2.5 * oneTiger);
+        expect(lionBalanceAfter).to.equal(lionBalanceBefore.add(oneTiger.mul(5).div(2)));
     })
 })
