@@ -3,6 +3,7 @@ const {ethers} = require("hardhat")
 
 describe("Exchange", function () {
     const DECIMALS = 18;
+    const EXCHANGE_SCALE = 10000;
 
     async function deployTokenAndMintReserve(deployer, tokenContractName, mintFor) {
         // get factory
@@ -46,20 +47,18 @@ describe("Exchange", function () {
         }
     }
 
-    async function deployExchange(
-        deployer,
-        reserves
-    ) {
+    async function deployExchange(deployer, reserves) {
         const Factory = await ethers.getContractFactory("Exchange");
         const exchange = await Factory.connect(deployer).deploy();
         await exchange.deployed();
 
         for (let i = 0; i < reserves.length; i++) {
-            await exchange.connect(deployer).addReserve(
-                reserves[i].token,
-                reserves[i].reserve,
-            );
+            await exchange.connect(deployer).addReserve(reserves[i].token, reserves[i].reserve,);
         }
+    }
+
+    async function setExchangeRate(deployer, reserve, rate, reverseRate,) {
+        await reserve.connect(deployer).setExchangeRate(rate, reverseRate);
     }
 
     async function setupAll(admin, mintFor) {
@@ -68,10 +67,16 @@ describe("Exchange", function () {
         const lion = await deployTokenAndMintReserve(admin, "Lion", mintFor)
         console.log(`Token Lion is deployed at ${lion.token.address}, reserve at ${lion.reserve.address}`);
 
-        await deployExchange(admin, [
-            {token: tiger.token.address, reserve: tiger.reserve.address},
-            {token: lion.token.address, reserve: lion.reserve.address}
-        ])
+        await deployExchange(admin, [{
+            token: tiger.token.address,
+            reserve: tiger.reserve.address
+        }, {token: lion.token.address, reserve: lion.reserve.address}])
+
+        // set 1 ETH = 2 Tiger and 1 Tiger = 0.5 ETH
+        await setExchangeRate(admin, tiger.reserve, 2 * EXCHANGE_SCALE, EXCHANGE_SCALE / 2);
+
+        // set 1 ETH = 5 Lion and 1 Lion = 0.1 ETH
+        await setExchangeRate(admin, tiger.reserve, 5 * EXCHANGE_SCALE, EXCHANGE_SCALE / 10);
     }
 
     it("Exchange between two ERC20 tokens", async function () {
