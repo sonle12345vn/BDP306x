@@ -64,7 +64,6 @@ $(function () {
     function checkApproval(srcSymbol) {
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
             const srcToken = findTokenBySymbol(srcSymbol);
-            console.log(`init approve: ${accounts[0]}`)
             getAllowance(srcToken.address, accounts[0], EnvConfig.EXCHANGE_CONTRACT_ADDRESS).then((allow) => {
                 if (allow < DEFAULT_APPROVE / 2) {
                     $('#swap-button').html(ApproveTxt)
@@ -136,8 +135,7 @@ $(function () {
                             BigNumber(DEFAULT_APPROVE).toString()
                         );
                         const web3Instance = getWeb3Instance();
-                        console.log('web3 account',web3Instance.eth.accounts[0])
-                        const metamaskService = new MetamaskService(getWeb3Instance())
+                        const metamaskService = new MetamaskService(web3Instance)
 
                         metamaskService.sendTransaction({
                             from: accounts[0],
