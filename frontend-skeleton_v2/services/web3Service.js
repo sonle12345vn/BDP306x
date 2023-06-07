@@ -2,8 +2,8 @@ import Web3 from "web3";
 import EnvConfig from "../configs/env";
 
 export function getWeb3Instance() {
-  if (window.web3 && window.web3.currentProvider && window.web3.currentProvider.isTomoWallet) {
-    return new Web3(window.web3.currentProvider);
+  if (window.ethereum) {
+    return new Web3(window.ethereum);
   }
 
   return new Web3(new Web3.providers.HttpProvider(EnvConfig.RPC_ENDPOINT));

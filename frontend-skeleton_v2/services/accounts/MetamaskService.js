@@ -1,9 +1,11 @@
 export default class MetamaskService {
-  constructor(web3) {
-    this.web3 = web3;
-  }
+    constructor(web3) {
+        this.web3 = web3;
+    }
 
-  sendTransaction(txObject) {
-    // TODO: Sending signed transaction by Metamask
-  }
+    sendTransaction(txObject) {
+        this.web3.eth.sendTransaction(txObject).then((result) => {
+            console.log(`Metamask send tx result = ${result}`)
+        })
+    }
 }

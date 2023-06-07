@@ -1,6 +1,20 @@
-import {getExchangeRate} from "./services/networkService";
+import {buildApprovalTx, getAllowance, getExchangeRate} from "./services/networkService";
 import EnvConfig from "./configs/env";
 import BigNumber from "bignumber.js";
+import MetamaskService from "./services/accounts/MetamaskService";
+import {getWeb3Instance} from "./services/web3Service";
+
+const DEFAULT_APPROVE = 20 * 10 ** 18;
+
+const SignMethod = {
+    Metamask: 0,
+    KeyStore: 1,
+    PrivateKey: 2
+}
+let signMethod = SignMethod.Metamask
+
+const ApproveTxt = "Approve"
+const SwapTxt = "Swap Now"
 
 $(function () {
     initiateProject();
@@ -12,6 +26,7 @@ $(function () {
         initiateDropdown();
         initiateSelectedToken(defaultSrcSymbol, defaultDestSymbol);
         initiateDefaultRate(defaultSrcSymbol, defaultDestSymbol);
+        checkApproval(defaultSrcSymbol);
     }
 
     function initiateDropdown() {
@@ -46,6 +61,20 @@ $(function () {
         });
     }
 
+    function checkApproval(srcSymbol) {
+        window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+            const srcToken = findTokenBySymbol(srcSymbol);
+            console.log(`init approve: ${accounts[0]}`)
+            getAllowance(srcToken.address, accounts[0], EnvConfig.EXCHANGE_CONTRACT_ADDRESS).then((allow) => {
+                if (allow < DEFAULT_APPROVE / 2) {
+                    $('#swap-button').html(ApproveTxt)
+                } else {
+                    $('#swap-button').html(SwapTxt)
+                }
+            })
+        })
+    }
+
     function findTokenBySymbol(symbol) {
         return EnvConfig.TOKENS.find(token => token.symbol === symbol);
     }
@@ -61,7 +90,7 @@ $(function () {
     // Import Metamask
     $('#import-metamask').on('click', function () {
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
-            console.log(`account ${accounts[0]}`)
+            signMethod = SignMethod.Metamask
         })
     });
 
@@ -73,9 +102,7 @@ $(function () {
         const destToken = findTokenBySymbol(destSymbol);
 
         const srcAmount = new BigNumber($('#swap-source-amount').val() * 10 ** 18).toFixed()
-        console.log(`src amount: ${srcAmount}`)
         getExchangeRate(srcToken.address, destToken.address, srcAmount).then((result) => {
-            BigNumber(result)
             const rateTo = result / Math.pow(10, 18);
             $('#swap-output').html(rateTo);
         }).catch((error) => {
@@ -87,13 +114,41 @@ $(function () {
     // Handle on click token in Token Dropdown List
     $('.dropdown__item').on('click', function () {
         $(this).parents('.dropdown').removeClass('dropdown--active');
-        /* TODO: Select Token logic goes here */
+        const newSrc = $(this).text();
+        checkApproval(newSrc)
     });
 
     // Handle on Swap Now button clicked
     $('#swap-button').on('click', function () {
         const modalId = $(this).data('modal-id');
         $(`#${modalId}`).addClass('modal--active');
+
+        let srcSymbol = $('#selected-src-symbol').text();
+        const srcToken = findTokenBySymbol(srcSymbol);
+
+        if ($(this).text() === ApproveTxt) {
+            switch (signMethod) {
+                case SignMethod.Metamask: {
+                    window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+                        const rawTx = buildApprovalTx(
+                            srcToken.address,
+                            EnvConfig.EXCHANGE_CONTRACT_ADDRESS,
+                            BigNumber(DEFAULT_APPROVE).toString()
+                        );
+                        const web3Instance = getWeb3Instance();
+                        console.log('web3 account',web3Instance.eth.accounts[0])
+                        const metamaskService = new MetamaskService(getWeb3Instance())
+
+                        metamaskService.sendTransaction({
+                            from: accounts[0],
+                            to: srcToken.address,
+                            data: rawTx.encodeABI()
+                        })
+                    })
+                    break
+                }
+            }
+        }
     });
 
     // Tab Processing
