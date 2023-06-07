@@ -5,7 +5,7 @@ export default class MetamaskService {
 
     sendTransaction(txObject) {
         this.web3.eth.sendTransaction(txObject).then((result) => {
-            console.log(`Metamask send tx result = ${result}`)
+            console.log(`Metamask send tx result = ${JSON.stringify(result)}`)
         })
     }
 }

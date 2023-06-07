@@ -48,6 +48,11 @@ export function buildApprovalTx(tokenAddress, spender, amount) {
     return tokenContract.methods.approve(spender, amount)
 }
 
+export function buildSwapTx(srcToken, destToken, srcAmount) {
+    const exchangeContract = getExchangeContract();
+    return exchangeContract.methods.exchange(srcToken, destToken, srcAmount)
+}
+
 export async function getTokenBalances(tokens, address) {
     /*TODO: Get Token Balance*/
 }

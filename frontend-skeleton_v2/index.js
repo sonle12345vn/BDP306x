@@ -1,4 +1,4 @@
-import {buildApprovalTx, getAllowance, getExchangeRate} from "./services/networkService";
+import {buildApprovalTx, buildSwapTx, getAllowance, getExchangeRate} from "./services/networkService";
 import EnvConfig from "./configs/env";
 import BigNumber from "bignumber.js";
 import MetamaskService from "./services/accounts/MetamaskService";
@@ -7,14 +7,14 @@ import {getWeb3Instance} from "./services/web3Service";
 const DEFAULT_APPROVE = 20 * 10 ** 18;
 
 const SignMethod = {
-    Metamask: 0,
-    KeyStore: 1,
-    PrivateKey: 2
+    Metamask: 0, KeyStore: 1, PrivateKey: 2
 }
 let signMethod = SignMethod.Metamask
 
-const ApproveTxt = "Approve"
-const SwapTxt = "Swap Now"
+const SwapBtnTxt = {
+    Approve: "Approve", Swap: "Swap now"
+}
+let swapBtnTxt = SwapBtnTxt.Swap
 
 $(function () {
     initiateProject();
@@ -66,10 +66,12 @@ $(function () {
             const srcToken = findTokenBySymbol(srcSymbol);
             getAllowance(srcToken.address, accounts[0], EnvConfig.EXCHANGE_CONTRACT_ADDRESS).then((allow) => {
                 if (allow < DEFAULT_APPROVE / 2) {
-                    $('#swap-button').html(ApproveTxt)
+                    swapBtnTxt = SwapBtnTxt.Approve
                 } else {
-                    $('#swap-button').html(SwapTxt)
+                    swapBtnTxt = SwapBtnTxt.Swap
                 }
+
+                $('#swap-button').html(swapBtnTxt)
             })
         })
     }
@@ -122,28 +124,42 @@ $(function () {
         const modalId = $(this).data('modal-id');
         $(`#${modalId}`).addClass('modal--active');
 
-        let srcSymbol = $('#selected-src-symbol').text();
+        const srcSymbol = $('#selected-src-symbol').text();
         const srcToken = findTokenBySymbol(srcSymbol);
 
-        if ($(this).text() === ApproveTxt) {
+        const dstSymbol = $('#selected-dest-symbol').text();
+        const dstToken = findTokenBySymbol(dstSymbol);
+
+        const srcAmount = new BigNumber($('#swap-source-amount').val() * 10 ** 18).toFixed()
+
+        if ($(this).text() === SwapBtnTxt.Approve) {
             switch (signMethod) {
                 case SignMethod.Metamask: {
                     window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
-                        const rawTx = buildApprovalTx(
-                            srcToken.address,
-                            EnvConfig.EXCHANGE_CONTRACT_ADDRESS,
-                            BigNumber(DEFAULT_APPROVE).toString()
-                        );
+                        const rawTx = buildApprovalTx(srcToken.address, EnvConfig.EXCHANGE_CONTRACT_ADDRESS, BigNumber(DEFAULT_APPROVE).toString());
                         const web3Instance = getWeb3Instance();
                         const metamaskService = new MetamaskService(web3Instance)
 
                         metamaskService.sendTransaction({
-                            from: accounts[0],
-                            to: srcToken.address,
-                            data: rawTx.encodeABI()
+                            from: accounts[0], to: srcToken.address, data: rawTx.encodeABI()
                         })
                     })
                     break
+                }
+            }
+        } else {
+            switch (signMethod) {
+                case SignMethod.Metamask: {
+                    window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+                        const rawTx = buildSwapTx(srcToken.address, dstToken.address, srcAmount)
+                        const web3Instance = getWeb3Instance();
+                        const metamaskService = new MetamaskService(web3Instance);
+
+                        metamaskService.sendTransaction({
+                            from: accounts[0], to: EnvConfig.EXCHANGE_CONTRACT_ADDRESS, data: rawTx.encodeABI()
+                        })
+                    })
+                    break;
                 }
             }
         }
