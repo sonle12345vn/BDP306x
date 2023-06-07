@@ -454,14 +454,14 @@ const EnvConfig = {
         }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function"
     }, {
         "stateMutability": "payable", "type": "receive"
-    }], EXCHANGE_CONTRACT_ADDRESS: '0x7499c695c0edA7bA880CeE197dA0175425162a43',
+    }], EXCHANGE_CONTRACT_ADDRESS: '0xe64d3fe8daC38E035206f16e28fBF62cd92C076F',
 
     TOKENS: [{
         "name": 'TomoChain', "symbol": 'TOMO', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     }, {
-        "name": 'Tiger', "symbol": 'TIGER', address: '0x5b7eFCb3ebbde03625A92C67a87c5a58F046e64f',
+        "name": 'Tiger', "symbol": 'TIGER', address: '0xD4B4B15DB1E73A0572046DdD1eDD1acF591162E1',
     }, {
-        "name": 'Lion', "symbol": 'LION', address: '0xFb0a39aE8c44a0E83a1445d4d272294345fA2207',
+        "name": 'Lion', "symbol": 'LION', address: '0xb5c4569617320146c8510A9Cf432dd2f86acf6d1',
     },],
 };
 
