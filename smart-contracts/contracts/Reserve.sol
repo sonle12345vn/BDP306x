@@ -56,14 +56,14 @@ contract Reserve is Ownable {
 
     function getExchangeRate(bool isFromBaseToQuote, uint256 amount) public view returns (uint256) {
         if (isFromBaseToQuote) {
-            uint256 to = amount * exchangeRate / exchangeScale;
+            uint256 to = amount / exchangeScale * exchangeRate;
             if (to > IERC20(quoteToken).balanceOf(address(this))) {
                 return 0;
             }
 
             return to;
         } else {
-            uint256 to = amount * reverseExchangeRate / exchangeScale;
+            uint256 to = amount / exchangeScale * reverseExchangeRate;
             if (to > address(this).balance) {
                 return 0;
             }
