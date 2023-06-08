@@ -85,7 +85,11 @@ $(function () {
         const selectedSymbol = $(this).html();
         $(this).parent().siblings('.dropdown__trigger').find('.selected-target').html(selectedSymbol);
 
-        /* TODO: Implement changing rate for Source and Dest Token here. */
+        const srcSymbol = $('#selected-src-symbol').text();
+        const dstSymbol = $('#selected-dest-symbol').text();
+
+        initiateSelectedToken(srcSymbol, dstSymbol);
+        initiateDefaultRate(srcSymbol, dstSymbol);
     });
 
     // Import Metamask
@@ -162,8 +166,6 @@ $(function () {
                         if (isEth(srcToken.address)) {
                             txObject.value = srcAmount.toString();
                         }
-
-                        console.log(`txObject: ${JSON.stringify(txObject)}`)
 
                         metamaskService.sendTransaction(txObject)
                     })
