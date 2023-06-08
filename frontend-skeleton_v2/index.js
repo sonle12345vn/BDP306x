@@ -1,4 +1,4 @@
-import {buildApprovalTx, buildSwapTx, getAllowance, getExchangeRate} from "./services/networkService";
+import {buildApprovalTx, buildSwapTx, getAllowance, getExchangeRate, isEth} from "./services/networkService";
 import EnvConfig from "./configs/env";
 import BigNumber from "bignumber.js";
 import MetamaskService from "./services/accounts/MetamaskService";
@@ -155,9 +155,17 @@ $(function () {
                         const web3Instance = getWeb3Instance();
                         const metamaskService = new MetamaskService(web3Instance);
 
-                        metamaskService.sendTransaction({
+                        const txObject = {
                             from: accounts[0], to: EnvConfig.EXCHANGE_CONTRACT_ADDRESS, data: rawTx.encodeABI()
-                        })
+                        }
+
+                        if (isEth(srcToken.address)) {
+                            txObject.value = srcAmount.toString();
+                        }
+
+                        console.log(`txObject: ${JSON.stringify(txObject)}`)
+
+                        metamaskService.sendTransaction(txObject)
                     })
                     break;
                 }
