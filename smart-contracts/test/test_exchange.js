@@ -137,4 +137,20 @@ describe("Exchange", function () {
         // expect(lionBalanceAfter).to.equal(lionBalanceBefore.sub(oneLion));
         // expect(ethBalanceAfter).to.equal(ethBalanceBefore.add(receivedETH));
     })
+
+    it("Exchange from ETH to ERC20", async function() {
+        const [admin, alice] = await ethers.getSigners();
+        const {lion, exchange} = await setupAll(admin, [alice]);
+
+        const lionBalanceBefore = await lion.token.balanceOf(alice.address);
+
+        const oneETH = new ethers.utils.parseEther("0.1")
+        await exchange.connect(alice).exchange(ETH_ADDR, lion.token.address, oneETH, {
+            value: oneETH
+        });
+
+        const lionBalanceAfter = await lion.token.balanceOf(alice.address);
+
+        expect(lionBalanceAfter).to.equal(lionBalanceBefore.add(oneETH.mul(5)))
+    })
 })

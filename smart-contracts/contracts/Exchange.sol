@@ -74,7 +74,7 @@ contract Exchange is Ownable {
             // exchange from ETH to dst from Exchange contract
             // after this succeed, Exchange contract hold dstToken
             Reserve dst = tokenMapping[dstToken];
-            dst.exchange(true, srcAmount);
+            dst.exchange{value: srcAmount}(true, srcAmount);
 
             // Transfer dstToken to user
             IERC20(dstToken).transfer(msg.sender, amountTo);
