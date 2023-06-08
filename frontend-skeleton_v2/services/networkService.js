@@ -1,17 +1,4 @@
-import {getExchangeContract, getTokenContract} from "./web3Service";
-import EnvConfig from "../configs/env";
-
-export function getSwapABI(data) {
-    /*TODO: Get Swap ABI*/
-}
-
-export function getTransferABI(data) {
-    /*TODO: Get Transfer ABI*/
-}
-
-export function getApproveABI(srcTokenAddress, amount) {
-    /*TODO: Get Approve ABI*/
-}
+import {getExchangeContract, getTokenContract, getWeb3Instance} from "./web3Service";
 
 export function getAllowance(srcTokenAddress, address, spender) {
     if (isEth(srcTokenAddress)) {
@@ -53,8 +40,26 @@ export function buildSwapTx(srcToken, destToken, srcAmount) {
     return exchangeContract.methods.exchange(srcToken, destToken, srcAmount)
 }
 
-export async function getTokenBalances(tokens, address) {
-    /*TODO: Get Token Balance*/
+export function buildTransferTx(token, toAddress, amount) {
+    const tokenContract = getTokenContract(token);
+    return tokenContract.transfer(toAddress, amount);
+}
+
+export async function getTokenBalance(token, address) {
+    if (isEth(token)) {
+        const web3 = getWeb3Instance();
+        return web3.eth.getBalance(address)
+    }
+
+    const tokenContract = getTokenContract(token)
+
+    return new Promise((resolve, reject) => {
+        tokenContract.methods.balanceOf(address).call().then((result) => {
+            resolve(result)
+        }, (error) => {
+            reject(error);
+        })
+    })
 }
 
 export function isEth(token) {

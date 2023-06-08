@@ -369,4 +369,13 @@ input {
 .transfer.active {
   display: block;
 }
+
+.account-balance {
+  display: flex;
+}
+
+.account-balance-value {
+  margin-left: 20px;
+}
+
 /*========= End Transfer =========*/

@@ -1,4 +1,11 @@
-import {buildApprovalTx, buildSwapTx, getAllowance, getExchangeRate, isEth} from "./services/networkService";
+import {
+    buildApprovalTx,
+    buildSwapTx,
+    getAllowance,
+    getExchangeRate,
+    getTokenBalance,
+    isEth
+} from "./services/networkService";
 import EnvConfig from "./configs/env";
 import BigNumber from "bignumber.js";
 import MetamaskService from "./services/accounts/MetamaskService";
@@ -26,6 +33,7 @@ $(function () {
         initiateDropdown();
         initiateSelectedToken(defaultSrcSymbol, defaultDestSymbol);
         initiateDefaultRate(defaultSrcSymbol, defaultDestSymbol);
+        initiateBalance(defaultSrcSymbol, '#swap-balance-from');
         checkApproval(defaultSrcSymbol);
     }
 
@@ -61,6 +69,18 @@ $(function () {
         });
     }
 
+    function initiateBalance(symbol, id) {
+        window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+            const token = findTokenBySymbol(symbol)
+            getTokenBalance(token.address, accounts[0]).then((balance) => {
+                console.log(`balance: ${balance}`)
+                const balanceWithoutDec = balance / Math.pow(10, 18);
+                console.log(`bl: ${balanceWithoutDec}`)
+                $(id).html(balanceWithoutDec)
+            })
+        })
+    }
+
     function checkApproval(srcSymbol) {
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
             const srcToken = findTokenBySymbol(srcSymbol);
@@ -90,6 +110,7 @@ $(function () {
 
         initiateSelectedToken(srcSymbol, dstSymbol);
         initiateDefaultRate(srcSymbol, dstSymbol);
+        initiateBalance(srcSymbol, '#swap-balance-from');
     });
 
     // Import Metamask
