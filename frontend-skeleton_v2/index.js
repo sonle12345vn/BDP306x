@@ -146,7 +146,13 @@ $(function () {
 
                         metamaskService.sendTransaction({
                             from: accounts[0], to: srcToken.address, data: rawTx.encodeABI()
-                        })
+                        }).then((result) => {
+                            if (result) {
+                                $('#confirm-text').html("Transaction successfully")
+                            } else {
+                                $('#confirm-text').html("Transaction failed")
+                            }
+                        });
                     })
                     break
                 }
@@ -167,7 +173,13 @@ $(function () {
                             txObject.value = srcAmount.toString();
                         }
 
-                        metamaskService.sendTransaction(txObject)
+                        metamaskService.sendTransaction(txObject).then((result) => {
+                            if (result) {
+                                $('#confirm-text').html("Transaction successfully")
+                            } else {
+                                $('#confirm-text').html("Transaction failed")
+                            }
+                        })
                     })
                     break;
                 }
