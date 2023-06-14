@@ -1,17 +1,17 @@
 import {
     buildApprovalTx,
-    buildSwapTx,
+    buildSwapTx, buildTransferTx,
     getAllowance,
     getExchangeRate,
     getTokenBalance,
-    isEth
+    isTOMO
 } from "./services/networkService";
 import EnvConfig from "./configs/env";
 import BigNumber from "bignumber.js";
 import MetamaskService from "./services/accounts/MetamaskService";
 import {getWeb3Instance} from "./services/web3Service";
 
-const DEFAULT_APPROVE = 20 * 10 ** 18;
+const DEFAULT_APPROVE = 20 * 10 ** 9 * 10 ** 18;
 
 const SignMethod = {
     Metamask: 0, KeyStore: 1, PrivateKey: 2
@@ -73,9 +73,7 @@ $(function () {
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
             const token = findTokenBySymbol(symbol)
             getTokenBalance(token.address, accounts[0]).then((balance) => {
-                console.log(`balance: ${balance}`)
                 const balanceWithoutDec = balance / Math.pow(10, 18);
-                console.log(`bl: ${balanceWithoutDec}`)
                 $(id).html(balanceWithoutDec)
             })
         })
@@ -100,17 +98,29 @@ $(function () {
         return EnvConfig.TOKENS.find(token => token.symbol === symbol);
     }
 
+    function isSwapActive() {
+        const contentId = $('.tab__item--active').attr('data-content-id');
+        return contentId === 'swap'
+    }
+
     // On changing token from dropdown.
     $(document).on('click', '.dropdown__item', function () {
         const selectedSymbol = $(this).html();
         $(this).parent().siblings('.dropdown__trigger').find('.selected-target').html(selectedSymbol);
 
-        const srcSymbol = $('#selected-src-symbol').text();
-        const dstSymbol = $('#selected-dest-symbol').text();
 
-        initiateSelectedToken(srcSymbol, dstSymbol);
-        initiateDefaultRate(srcSymbol, dstSymbol);
-        initiateBalance(srcSymbol, '#swap-balance-from');
+        if (isSwapActive()) {
+            const srcSymbol = $('#selected-src-symbol').text();
+            const dstSymbol = $('#selected-dest-symbol').text();
+
+            initiateSelectedToken(srcSymbol, dstSymbol);
+
+            initiateDefaultRate(srcSymbol, dstSymbol);
+            initiateBalance(srcSymbol, '#swap-balance-from');
+        } else {
+            const srcSymbol = $('#selected-transfer-token').text();
+            initiateBalance(srcSymbol, '#transfer-balance-from');
+        }
     });
 
     // Import Metamask
@@ -190,7 +200,7 @@ $(function () {
                             from: accounts[0], to: EnvConfig.EXCHANGE_CONTRACT_ADDRESS, data: rawTx.encodeABI()
                         }
 
-                        if (isEth(srcToken.address)) {
+                        if (isTOMO(srcToken.address)) {
                             txObject.value = srcAmount.toString();
                         }
 
@@ -208,6 +218,43 @@ $(function () {
         }
     });
 
+    $('#transfer-button').on('click', function () {
+        const modalId = $(this).data('modal-id');
+        $(`#${modalId}`).addClass('modal--active');
+
+        const srcSymbol = $('#selected-transfer-token').text();
+        const srcToken = findTokenBySymbol(srcSymbol);
+
+        const toAddress = $('#transfer-address').val();
+        console.log(`to ${toAddress}`)
+
+        const srcAmount = new BigNumber($('#transfer-source-amount').val() * 10 ** 18).toFixed()
+
+        console.log(`symbol ${srcSymbol}, amount ${srcAmount.toString()}`)
+
+        if (isTOMO(srcToken.address)) {
+
+        } else {
+            window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+                const rawTx = buildTransferTx(srcToken.address, toAddress, srcAmount);
+                const web3Instance = getWeb3Instance();
+                const metamaskService = new MetamaskService(web3Instance);
+                const txObject = {
+                    from: accounts[0], to: srcToken.address, data: rawTx.encodeABI()
+                }
+
+                console.log('here')
+                metamaskService.sendTransaction(txObject).then((result) => {
+                    if (result) {
+                        $('#confirm-text').html("Transaction successfully")
+                    } else {
+                        $('#confirm-text').html("Transaction failed")
+                    }
+                })
+            })
+        }
+    });
+
     // Tab Processing
     $('.tab__item').on('click', function () {
         const contentId = $(this).data('content-id');
@@ -220,6 +267,9 @@ $(function () {
         } else {
             $('#transfer').addClass('active');
             $('#swap').removeClass('active');
+
+            const srcSymbol = $('#selected-transfer-token').text();
+            initiateBalance(srcSymbol, '#transfer-balance-from')
         }
     });
 

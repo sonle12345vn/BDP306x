@@ -1,7 +1,7 @@
 import {getExchangeContract, getTokenContract, getWeb3Instance} from "./web3Service";
 
 export function getAllowance(srcTokenAddress, address, spender) {
-    if (isEth(srcTokenAddress)) {
+    if (isTOMO(srcTokenAddress)) {
         return Promise.resolve(200000 * 10 ** 18)
     }
 
@@ -42,11 +42,11 @@ export function buildSwapTx(srcToken, destToken, srcAmount) {
 
 export function buildTransferTx(token, toAddress, amount) {
     const tokenContract = getTokenContract(token);
-    return tokenContract.transfer(toAddress, amount);
+    return tokenContract.methods.transfer(toAddress, amount);
 }
 
 export async function getTokenBalance(token, address) {
-    if (isEth(token)) {
+    if (isTOMO(token)) {
         const web3 = getWeb3Instance();
         return web3.eth.getBalance(address)
     }
@@ -62,6 +62,6 @@ export async function getTokenBalance(token, address) {
     })
 }
 
-export function isEth(token) {
+export function isTOMO(token) {
     return token === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 }
