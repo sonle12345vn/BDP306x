@@ -24,7 +24,7 @@ async function main() {
     const [admin] = await ethers.getSigners();
     // 1 TOMO = 0.5 Tiger
     // 1 Tiger = 0.1 TOMO
-    await setExchangeRateTiger(admin, 0.5 * ExchangeRateScale, 0.1 * ExchangeRateScale)
+    await setExchangeRateTiger(admin, 2 * ExchangeRateScale,  ExchangeRateScale / 2)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
