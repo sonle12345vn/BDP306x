@@ -226,33 +226,36 @@ $(function () {
         const srcToken = findTokenBySymbol(srcSymbol);
 
         const toAddress = $('#transfer-address').val();
-        console.log(`to ${toAddress}`)
 
         const srcAmount = new BigNumber($('#transfer-source-amount').val() * 10 ** 18).toFixed()
 
-        console.log(`symbol ${srcSymbol}, amount ${srcAmount.toString()}`)
+        window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+            const web3Instance = getWeb3Instance();
+            const metamaskService = new MetamaskService(web3Instance);
 
-        if (isTOMO(srcToken.address)) {
+            let txObject
+            if (isTOMO(srcToken.address)) {
 
-        } else {
-            window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+                txObject = {
+                    from: accounts[0],
+                    to: toAddress,
+                    value: srcAmount
+                }
+            } else {
                 const rawTx = buildTransferTx(srcToken.address, toAddress, srcAmount);
-                const web3Instance = getWeb3Instance();
-                const metamaskService = new MetamaskService(web3Instance);
-                const txObject = {
+                txObject = {
                     from: accounts[0], to: srcToken.address, data: rawTx.encodeABI()
                 }
+            }
 
-                console.log('here')
-                metamaskService.sendTransaction(txObject).then((result) => {
-                    if (result) {
-                        $('#confirm-text').html("Transaction successfully")
-                    } else {
-                        $('#confirm-text').html("Transaction failed")
-                    }
-                })
+            metamaskService.sendTransaction(txObject).then((result) => {
+                if (result) {
+                    $('#confirm-text').html("Transaction successfully")
+                } else {
+                    $('#confirm-text').html("Transaction failed")
+                }
             })
-        }
+        })
     });
 
     // Tab Processing
