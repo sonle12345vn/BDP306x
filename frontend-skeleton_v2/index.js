@@ -11,7 +11,7 @@ import BigNumber from "bignumber.js";
 import MetamaskService from "./services/accounts/MetamaskService";
 import {getWeb3Instance} from "./services/web3Service";
 
-const DEFAULT_APPROVE = 20 * 10 ** 9 * 10 ** 18;
+const DEFAULT_APPROVE = 20 * 10 ** 18;
 
 const SignMethod = {
     Metamask: 0, KeyStore: 1, PrivateKey: 2
@@ -82,6 +82,11 @@ $(function () {
     function checkApproval(srcSymbol) {
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
             const srcToken = findTokenBySymbol(srcSymbol);
+            if (isTOMO(srcToken.address)) {
+                $('#swap-button').html(SwapBtnTxt.Swap)
+                return
+            }
+
             getAllowance(srcToken.address, accounts[0], EnvConfig.EXCHANGE_CONTRACT_ADDRESS).then((allow) => {
                 if (allow < DEFAULT_APPROVE / 2) {
                     swapBtnTxt = SwapBtnTxt.Approve
