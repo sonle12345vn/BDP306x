@@ -2,3 +2,5 @@
 2. [BDP306 commits](https://docs.google.com/spreadsheets/d/1VkizdCmk5rXJhEaczr_GptghsVHGer_Cv_kN04bEhUE/edit?usp=sharing)
 3. [Test cases](https://docs.google.com/spreadsheets/d/1IXeB9P_H9jjTAwc33lhZ0ti7xc0Gkkjy/edit?usp=sharing&ouid=117992709158972131273&rtpof=true&sd=true)
 4. [Demo](https://drive.google.com/file/d/1AIW4ifnn4J9cIGDhKDp_CFm3EDPFfwGf/view?usp=sharing)
+5. [Software Design](https://docs.google.com/document/d/1PbGIOhjPleJ5VB6OcVHbGtnbPWUeyLLd/edit?usp=sharing&ouid=117992709158972131273&rtpof=true&sd=true)
+6. [Software Requirements specification](https://docs.google.com/document/d/1RdSCXgp9YCflGOYQ0bxp1PwI2DX4MLJl/edit?usp=sharing&ouid=117992709158972131273&rtpof=true&sd=true)

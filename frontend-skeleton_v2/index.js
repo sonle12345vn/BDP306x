@@ -290,5 +290,6 @@ $(function () {
     $('.modal').on('click', function (e) {
         if (e.target !== this) return;
         $(this).removeClass('modal--active');
+        $('#confirm-text').html("Waiting for confirm")
     });
 });
