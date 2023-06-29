@@ -5,3 +5,4 @@
 5. [Software Design](https://docs.google.com/document/d/1PbGIOhjPleJ5VB6OcVHbGtnbPWUeyLLd/edit?usp=sharing&ouid=117992709158972131273&rtpof=true&sd=true)
 6. [Software Requirements specification](https://docs.google.com/document/d/1RdSCXgp9YCflGOYQ0bxp1PwI2DX4MLJl/edit?usp=sharing&ouid=117992709158972131273&rtpof=true&sd=true)
 7. [Defense Slide](https://docs.google.com/presentation/d/1VAdNxTBvfhr5jUnKPnzppm4frzvyMSGPMqoDOEVvW74/edit?usp=sharing)
+8. [Defense record](https://drive.google.com/file/d/1Db6IYEjuT1ZD0fCPAb82Jcp_9y1qVIp8/view?usp=sharing)
