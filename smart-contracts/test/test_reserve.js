@@ -65,4 +65,18 @@ describe("Reserve", function () {
         expect(await token.balanceOf(reserve.address)).to.equal(BigInt(20 * 10 ** 18))
         expect(await token.balanceOf(admin.address)).to.equal(tigerBalanceBefore + BigInt(80 * 10 ** 18))
     })
+
+    it("Set exchange rate", async function () {
+
+        const [admin] = await ethers.getSigners();
+
+        // deploy and deposit 100 TIGER + 100 TOMO to reserve contract
+        const {reserve} = await deployReserve(admin, "Tiger")
+
+        // set new exchange rate
+        await reserve.connect(admin).setExchangeRate(
+            3 * EXCHANGE_SCALE, // rate from 1 TOMO to 3 TIGER
+            0.7 * EXCHANGE_SCALE // rate from 1 TIGER to 0.7 TOMO
+        )
+    })
 })
