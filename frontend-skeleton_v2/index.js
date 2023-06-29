@@ -263,9 +263,9 @@ $(function () {
 
                     metamaskService.sendTransaction(txObject).then((result) => {
                         if (result) {
-                            $('#confirm-text').html("Transaction successfully")
+                            $('#confirm-swap-status').html("SUCCESS")
                         } else {
-                            $('#confirm-text').html("Transaction failed")
+                            $('#confirm-swap-status').html("FAIL")
                         }
                     })
                 })
@@ -276,6 +276,7 @@ $(function () {
 
     $('#cancel-swap-button').on('click', function () {
         $('.modal').removeClass('modal--active');
+        resetSwapStatus();
     })
 
     $('#transfer-button').on('click', function () {
@@ -287,9 +288,9 @@ $(function () {
 
         const toAddress = $('#transfer-address').val();
 
-        const srcAmount = new BigNumber($('#transfer-source-amount').val())
+        const srcAmount = new BigNumber($('#transfer-source-amount').val() * 10 ** 18)
 
-        const transferText = `${srcAmount} ${srcSymbol}`
+        const transferText = `${srcAmount / (10**18)} ${srcSymbol}`
 
         $('#confirm-transfer-amount').html(transferText)
         $('#confirm-transfer-to').html(shortenAddress(toAddress))
@@ -330,7 +331,7 @@ $(function () {
 
         const toAddress = $('#transfer-address').val();
 
-        const srcAmount = new BigNumber($('#transfer-source-amount').val())
+        const srcAmount = new BigNumber($('#transfer-source-amount').val() * 10 ** 18)
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
             const web3Instance = getWeb3Instance();
             const metamaskService = new MetamaskService(web3Instance);
@@ -352,9 +353,9 @@ $(function () {
 
             metamaskService.sendTransaction(txObject).then((result) => {
                 if (result) {
-                    $('#confirm-text').html("Transaction successfully")
+                    $('#confirm-transfer-status').html("SUCCESS")
                 } else {
-                    $('#confirm-text').html("Transaction failed")
+                    $('#confirm-transfer-status').html("FAILED")
                 }
             })
         })
@@ -387,7 +388,13 @@ $(function () {
     $('.modal').on('click', function (e) {
         if (e.target !== this) return;
         $(this).removeClass('modal--active');
+        resetSwapStatus()
     });
+
+    function resetSwapStatus() {
+        $('#confirm-swap-status').html('')
+        $('#confirm-transfer-status').html('')
+    }
 });
 
 function shortenAddress(address) {
