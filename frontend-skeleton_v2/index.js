@@ -35,6 +35,15 @@ $(function () {
         initiateDefaultRate(defaultSrcSymbol, defaultDestSymbol);
         initiateBalance(defaultSrcSymbol, '#swap-balance-from');
         checkApproval(defaultSrcSymbol);
+
+        loadMetamaskInfo();
+    }
+
+    function loadMetamaskInfo() {
+        window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+            $('#current-address').html(`Current address: ${accounts[0]}`)
+            signMethod = SignMethod.Metamask
+        })
     }
 
     function initiateDropdown() {
@@ -130,9 +139,7 @@ $(function () {
 
     // Import Metamask
     $('#import-metamask').on('click', function () {
-        window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
-            signMethod = SignMethod.Metamask
-        })
+        loadMetamaskInfo()
     });
 
     // Handle on Source Amount Changed
@@ -384,5 +391,5 @@ $(function () {
 });
 
 function shortenAddress(address) {
-    return address.substring(0, 5)+"..."+address.substring(address.length-4)
+    return address.substring(0, 5) + "..." + address.substring(address.length - 4)
 }
