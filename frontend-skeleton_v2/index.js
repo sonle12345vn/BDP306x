@@ -279,8 +279,50 @@ $(function () {
 
         const toAddress = $('#transfer-address').val();
 
-        const srcAmount = new BigNumber($('#transfer-source-amount').val() * 10 ** 18).toFixed()
+        const srcAmount = new BigNumber($('#transfer-source-amount').val())
 
+        const transferText = `${srcAmount} ${srcSymbol}`
+
+        $('#confirm-transfer-amount').html(transferText)
+        $('#confirm-transfer-to').html(shortenAddress(toAddress))
+
+        window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+            const web3Instance = getWeb3Instance();
+            const metamaskService = new MetamaskService(web3Instance);
+
+            let txObject
+            if (isTOMO(srcToken.address)) {
+
+                txObject = {
+                    from: accounts[0],
+                    to: toAddress,
+                    value: srcAmount
+                }
+            } else {
+                const rawTx = buildTransferTx(srcToken.address, toAddress, srcAmount);
+                txObject = {
+                    from: accounts[0], to: srcToken.address, data: rawTx.encodeABI()
+                }
+            }
+
+            metamaskService.estimateGas(txObject).then((result) => {
+                if (result) {
+                    const b = new BigNumber(result.toString()).dividedBy(10 ** 18)
+                    $('#confirm-transfer-fee').html(`${b.toFixed()} TOMO`)
+                } else {
+                    $('#confirm-transfer-fee').html("Estimate gas failed")
+                }
+            })
+        })
+    });
+
+    $('#confirm-transfer-button').on('click', function () {
+        const srcSymbol = $('#selected-transfer-token').text();
+        const srcToken = findTokenBySymbol(srcSymbol);
+
+        const toAddress = $('#transfer-address').val();
+
+        const srcAmount = new BigNumber($('#transfer-source-amount').val())
         window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
             const web3Instance = getWeb3Instance();
             const metamaskService = new MetamaskService(web3Instance);
@@ -308,7 +350,7 @@ $(function () {
                 }
             })
         })
-    });
+    })
 
     // Tab Processing
     $('.tab__item').on('click', function () {
@@ -340,3 +382,7 @@ $(function () {
         $('#confirm-text').html("Waiting for confirm")
     });
 });
+
+function shortenAddress(address) {
+    return address.substring(0, 5)+"..."+address.substring(address.length-4)
+}

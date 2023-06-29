@@ -86,7 +86,7 @@
         </div>
       </div>
 
-        <div class="button modal-trigger" data-modal-id="confirm-swap-modal" id="transfer-button">Transfer Now</div>
+        <div class="button modal-trigger" data-modal-id="confirm-transfer-modal" id="transfer-button">Transfer Now</div>
     </div>
 
     <div class="import-account">
@@ -139,6 +139,27 @@
   </div>
 </div>
 
+<div class="modal" id="confirm-transfer-modal">
+    <div class="modal__content" id="confirm-transfer-text">
+        <div>CONFIRM TRANSFER</div>
+            <div class="modal__content-row">
+                <div>Transfer</div>
+                <div class="modal-token" id="confirm-transfer-amount">Loading</div>
+            </div>
+            <div class="modal__content-row">
+                <div>To</div>
+                <div class="modal-token" id="confirm-transfer-to">Loading</div>
+            </div>
+        <div class="modal__content-row">
+            <div class="modal-fee">GAS Fee</div>
+            <div id="confirm-transfer-fee">Loading</div>
+        </div>
+        <div class="modal__content-row">
+            <div class="button modal-cancel-button" data-modal-id="confirm-transfer-modal" id="cancel-transfer-button">Cancel</div>
+            <div class="button modal-confirm-button" data-modal-id="confirm-transfer-modal" id="confirm-transfer-button">Confirm</div>
+        </div>
+    </div>
+</div>
 <script src="index.js"></script>
 </body>
 </html>
