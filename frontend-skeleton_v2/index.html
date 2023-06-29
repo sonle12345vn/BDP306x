@@ -112,7 +112,31 @@
 </div>
 
 <div class="modal" id="confirm-swap-modal">
-  <div class="modal__content" id="confirm-text">Waiting for confirm</div>
+  <div class="modal__content" id="confirm-text">
+      <div>CONFIRM SWAP</div>
+      <div class="modal__content-row">
+          <div>
+              <div>From</div>
+              <div class="modal-token" id="confirm-swap-from">Loading</div>
+          </div>
+          <div>
+              <div>To</div>
+              <div class="modal-token" id="confirm-swap-to">Loading</div>
+          </div>
+      </div>
+      <div class="modal__content-row">
+          <div class="modal-rate">Rate</div>
+          <div id="confirm-swap-rate">Loading</div>
+      </div>
+      <div class="modal__content-row">
+          <div class="modal-fee">GAS Fee</div>
+          <div id="confirm-swap-fee">Loading</div>
+      </div>
+      <div class="modal__content-row">
+          <div class="button modal-cancel-button" data-modal-id="confirm-swap-modal" id="cancel-swap-button">Cancel</div>
+          <div class="button modal-confirm-button" data-modal-id="confirm-swap-modal" id="confirm-swap-button">Confirm</div>
+      </div>
+  </div>
 </div>
 
 <script src="index.js"></script>

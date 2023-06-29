@@ -171,7 +171,13 @@ $(function () {
         const dstToken = findTokenBySymbol(dstSymbol);
 
         const srcAmount = new BigNumber($('#swap-source-amount').val() * 10 ** 18).toFixed()
+        const swapOutput = new BigNumber($('#swap-output').text() * 10 ** 18).toFixed();
+        const rate = `1 ${$('#rate-src-symbol').text()} = ${$('#exchange-rate').text()} ${$('#rate-dest-symbol').text()}`
+        $('#confirm-swap-from').html(`${srcAmount / (10 ** 18)} ${srcSymbol}`)
+        $('#confirm-swap-to').html(`${swapOutput / (10 ** 18)} ${dstSymbol}`)
+        $('#confirm-swap-rate').html(rate)
 
+        // handle approve transaction
         if ($(this).text() === SwapBtnTxt.Approve) {
             switch (signMethod) {
                 case SignMethod.Metamask: {
@@ -209,11 +215,12 @@ $(function () {
                             txObject.value = srcAmount.toString();
                         }
 
-                        metamaskService.sendTransaction(txObject).then((result) => {
+                        metamaskService.estimateGas(txObject).then((result) => {
                             if (result) {
-                                $('#confirm-text').html("Transaction successfully")
+                                const b = new BigNumber(result.toString()).dividedBy(10 ** 18)
+                                $('#confirm-swap-fee').html(`${b.toFixed()} TOMO`)
                             } else {
-                                $('#confirm-text').html("Transaction failed")
+                                $('#confirm-swap-fee').html("Estimate gas failed")
                             }
                         })
                     })
@@ -222,6 +229,46 @@ $(function () {
             }
         }
     });
+
+    $('#confirm-swap-button').on('click', function () {
+        const srcSymbol = $('#selected-src-symbol').text();
+        const srcToken = findTokenBySymbol(srcSymbol);
+
+        const dstSymbol = $('#selected-dest-symbol').text();
+        const dstToken = findTokenBySymbol(dstSymbol);
+
+        const srcAmount = new BigNumber($('#swap-source-amount').val() * 10 ** 18).toFixed()
+        switch (signMethod) {
+            case SignMethod.Metamask: {
+                window.ethereum.request({method: 'eth_requestAccounts'}).then((accounts) => {
+                    const rawTx = buildSwapTx(srcToken.address, dstToken.address, srcAmount)
+                    const web3Instance = getWeb3Instance();
+                    const metamaskService = new MetamaskService(web3Instance);
+
+                    const txObject = {
+                        from: accounts[0], to: EnvConfig.EXCHANGE_CONTRACT_ADDRESS, data: rawTx.encodeABI()
+                    }
+
+                    if (isTOMO(srcToken.address)) {
+                        txObject.value = srcAmount.toString();
+                    }
+
+                    metamaskService.sendTransaction(txObject).then((result) => {
+                        if (result) {
+                            $('#confirm-text').html("Transaction successfully")
+                        } else {
+                            $('#confirm-text').html("Transaction failed")
+                        }
+                    })
+                })
+                break;
+            }
+        }
+    })
+
+    $('#cancel-swap-button').on('click', function () {
+        $('.modal').removeClass('modal--active');
+    })
 
     $('#transfer-button').on('click', function () {
         const modalId = $(this).data('modal-id');

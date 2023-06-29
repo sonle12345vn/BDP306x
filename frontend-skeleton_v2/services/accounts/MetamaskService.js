@@ -5,8 +5,13 @@ export default class MetamaskService {
 
     sendTransaction(txObject) {
         return this.web3.eth.sendTransaction(txObject).then((result) => {
-            console.log(`Metamask send tx result = ${JSON.stringify(result)}`)
             return Promise.resolve(result.status)
+        })
+    }
+
+    estimateGas(txObject) {
+        return this.web3.eth.estimateGas(txObject).then((result) => {
+            return Promise.resolve(result)
         })
     }
 }

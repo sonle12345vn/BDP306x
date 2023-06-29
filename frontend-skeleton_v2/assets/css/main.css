@@ -192,7 +192,7 @@ input {
   background: white;
   color: #333;
   text-align: center;
-  width: 600px;
+  width: 400px;
   max-width: 100%;
   padding: 20px 50px;
 }
@@ -379,3 +379,48 @@ input {
 }
 
 /*========= End Transfer =========*/
+
+.modal-token {
+    color: #252e45;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.modal-rate {
+    color: #4a5675;
+    font-size: 14px;
+    font-weight: 50;
+}
+
+.modal-fee {
+    color: #7a82a9;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.modal-cancel-button {
+    max-width: 160px;
+    border-radius: 27px;
+    border: 1px solid #80849c;
+    font-size: 14px;
+    font-weight: 500;
+    color: #80849c;
+    background: #fff;
+}
+
+.modal-confirm-button {
+    max-width: 160px;
+    border-radius: 27px;
+    border: 1px solid #dedede;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background: linear-gradient(180deg,  #36cef9,#279df4) 0 100%;
+    background-size: auto 150%;
+}
+
+.modal__content-row {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 20px;
+}
