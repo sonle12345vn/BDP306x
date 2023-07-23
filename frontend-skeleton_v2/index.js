@@ -122,9 +122,9 @@ $(function () {
         const selectedSymbol = $(this).html();
         $(this).parent().siblings('.dropdown__trigger').find('.selected-target').html(selectedSymbol);
 
-
         if (isSwapActive()) {
             const srcSymbol = $('#selected-src-symbol').text();
+            checkApproval(srcSymbol);
             const dstSymbol = $('#selected-dest-symbol').text();
 
             initiateSelectedToken(srcSymbol, dstSymbol);
@@ -163,14 +163,14 @@ $(function () {
     // Handle on click token in Token Dropdown List
     $('.dropdown__item').on('click', function () {
         $(this).parents('.dropdown').removeClass('dropdown--active');
-        const newSrc = $(this).text();
-        checkApproval(newSrc)
     });
 
     // Handle on Swap Now button clicked
     $('#swap-button').on('click', function () {
-        const modalId = $(this).data('modal-id');
-        $(`#${modalId}`).addClass('modal--active');
+        if ($(this).text() === SwapBtnTxt.Swap) {
+            const modalId = $(this).data('modal-id');
+            $(`#${modalId}`).addClass('modal--active');
+        }
 
         const srcSymbol = $('#selected-src-symbol').text();
         const srcToken = findTokenBySymbol(srcSymbol);
@@ -275,6 +275,11 @@ $(function () {
     })
 
     $('#cancel-swap-button').on('click', function () {
+        $('.modal').removeClass('modal--active');
+        resetSwapStatus();
+    })
+
+    $('#cancel-transfer-button').on('click', function () {
         $('.modal').removeClass('modal--active');
         resetSwapStatus();
     })
